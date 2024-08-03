@@ -1,35 +1,48 @@
+#!/usr/bin/env yaml
+# -*- coding: utf-8 -*-
+# =============================================================================
+# Created By  : Peem Srinikorn
+# Created Date: Tue Sep  8 20:57:59 +07 2020
+# =============================================================================
+
 steps:
-  # Step 1: Install dependencies and run tests
-  - name: 'python:3.9'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        pip install -r requirements.txt
-        pytest
+# This step runs the unit tests on the app
+- name: 'python:3.6-slim'
+  id: Test
+  entrypoint: /bin/sh
+  args:
+  - -c
+  - 'pip install -r requirements.txt && pytest -v'
 
-  # Step 2: Build the Docker image
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/helloworld', '.']
+# This step builds the container image.
+
+- name: 'gcr.io/cloud-builders/docker'
+  id: Build
+  args:
+  - 'build'
+  - '-t'
+  - 'gcr.io/$PROJECT_ID/$REPO_NAME:$BRANCH_NAME-$SHORT_SHA'
+  - '.'
   
-  # Step 3: Push the Docker image to Google Container Registry
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/helloworld']
-  
-  # Step 4: Deploy to Cloud Run
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: 'gcloud'
-    args: ['run', 'deploy', 'helloworld',
-           '--image', 'gcr.io/$PROJECT_ID/helloworld',
-           '--platform', 'managed',
-           '--region', 'us-central1',
-           '--allow-unauthenticated']
+# This step pushes the image to Container Registry
 
-images:
-  - 'gcr.io/$PROJECT_ID/helloworld'
+- name: 'gcr.io/cloud-builders/docker'
+  id: Push
+  args:
+  - 'push'
+  - 'gcr.io/$PROJECT_ID/$REPO_NAME:$BRANCH_NAME-$SHORT_SHA'
 
-service_account: '372371376210-compute@developer.gserviceaccount.com'
-
-options:
-  default_logs_bucket_behavior: 'REGIONAL_USER_OWNED_BUCKET'
-  logging: 'CLOUD_LOGGING_ONLY'
+# Deploy image to Cloud Run Google Cloud 
+- name: 'gcr.io/cloud-builders/gcloud'
+  id : Deploy to Cloud Run
+  args:
+  - 'run'
+  - 'deploy'
+  - 'fastapi-movies'
+  - '--image'
+  - 'gcr.io/$PROJECT_ID/$REPO_NAME:$BRANCH_NAME-$SHORT_SHA'
+  - '--region'
+  - asia-southeast1 
+  - '--platform'
+  - 'managed'
+  - '--allow-unauthenticated'
