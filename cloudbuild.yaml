@@ -4,6 +4,7 @@
 # Created By  : Peem Srinikorn
 # Created Date: Tue Sep  8 20:57:59 +07 2020
 # =============================================================================
+service_account: '372371376210-compute@developer.gserviceaccount.com'
 
 steps:
 # This step runs the unit tests on the app
@@ -46,3 +47,7 @@ steps:
   - '--platform'
   - 'managed'
   - '--allow-unauthenticated'
+
+options:
+  default_logs_bucket_behavior: 'REGIONAL_USER_OWNED_BUCKET'
+
