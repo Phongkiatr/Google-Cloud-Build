@@ -28,7 +28,8 @@ steps:
 images:
   - 'gcr.io/$PROJECT_ID/helloworld'
 
-# bucket
+service_account: '372371376210-compute@developer.gserviceaccount.com'
+
 options:
   default_logs_bucket_behavior: 'REGIONAL_USER_OWNED_BUCKET'
   logging: 'CLOUD_LOGGING_ONLY'
